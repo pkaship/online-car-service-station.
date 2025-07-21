@@ -1,128 +1,29 @@
-version: '3.8' # This version field is technically 'obsolete' in newer Docker Compose, but harmless to keep.
+# .devcontainer/docker-compose.yml
+version: '3.8'
 
 services:
-  # --- Database Services ---
-  user-db:
-    image: mysql:8.0
-    container_name: user-service-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password_user
-      MYSQL_DATABASE: user_db
-      MYSQL_USER: user_service_user
-      MYSQL_PASSWORD: user_service_password # Matches healthcheck below
-    ports:
-      - "3306:3306"
-    volumes:
-      - user_db_data:/var/lib/mysql
-    healthcheck:
-      # CORRECTED: -puser_service_password
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser_service_user", "-puser_service_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s # Give the database more time to start up before checking health
-
-  vehicle-db:
-    image: mysql:8.0
-    container_name: vehicle-service-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password_vehicle
-      MYSQL_DATABASE: vehicle_db
-      MYSQL_USER: vehicle_service_user
-      MYSQL_PASSWORD: vehicle_service_password # Matches healthcheck below
-    ports:
-      - "3307:3306"
-    volumes:
-      - vehicle_db_data:/var/lib/mysql
-    healthcheck:
-      # CORRECTED: -pvehicle_service_password
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uvehicle_service_user", "-pvehicle_service_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  booking-db:
-    image: mysql:8.0
-    container_name: booking-service-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password_booking
-      MYSQL_DATABASE: booking_db
-      MYSQL_USER: booking_service_user
-      MYSQL_PASSWORD: booking_service_password # Matches healthcheck below
-    ports:
-      - "3308:3306"
-    volumes:
-      - booking_db_data:/var/lib/mysql
-    healthcheck:
-      # CORRECTED: -pbooking_service_password
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubooking_service_user", "-pbooking_service_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  service-management-db:
-    image: mysql:8.0
-    container_name: sm-service-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password_sm
-      MYSQL_DATABASE: service_management_db
-      MYSQL_USER: sm_service_user
-      MYSQL_PASSWORD: sm_service_password # Matches healthcheck below
-    ports:
-      - "3309:3306"
-    volumes:
-      - service_management_db_data:/var/lib/mysql
-    healthcheck:
-      # CORRECTED: -psm_service_password
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usm_service_user", "-psm_service_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
-
-  notification-db:
-    image: mysql:8.0
-    container_name: notification-service-db
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password_notification
-      MYSQL_DATABASE: notification_db
-      MYSQL_USER: notification_service_user
-      MYSQL_PASSWORD: notification_service_password # Matches healthcheck below
-    ports:
-      - "3310:3306"
-    volumes:
-      - notification_db_data:/var/lib/mysql
-    healthcheck:
-      # CORRECTED: -pnotification_service_password
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unotification_service_user", "-pnotification_service_password"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s
+  # ... (database services are unchanged) ...
 
   # --- Microservice Services ---
   user-service:
     build:
-      context: ../user-service # Path to your user-service directory
+      context: ../../user-service # Corrected path: Go up two levels from .devcontainer
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # Expose the service's port
+      - "3000:3000"
     environment:
-      # Ensure DB_HOST points to the service name in this docker-compose.yml
       DB_HOST: user-db
       DB_USER: user_service_user
       DB_PASSWORD: user_service_password
       DB_NAME: user_db
-      JWT_SECRET: aVeryStrongAndComplexSecretKeyForYourJWT # Ensure this matches your .env
+      JWT_SECRET: aVeryStrongAndComplexSecretKeyForYourJWT
     depends_on:
       user-db:
-        condition: service_healthy # Ensure the DB is healthy before starting the service
+        condition: service_healthy
 
   vehicle-service:
     build:
-      context: ../vehicle-service
+      context: ../../vehicle-service # Corrected path
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
@@ -137,7 +38,7 @@ services:
 
   booking-service:
     build:
-      context: ../booking-service
+      context: ../../booking-service # Corrected path
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
@@ -152,7 +53,7 @@ services:
 
   service-management-service:
     build:
-      context: ../service-management-service
+      context: ../../service-management-service # Corrected path
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
@@ -167,7 +68,7 @@ services:
 
   notification-service:
     build:
-      context: ../notification-service
+      context: ../../notification-service # Corrected path
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
@@ -176,17 +77,17 @@ services:
       SPRING_DATASOURCE_USERNAME: notification_service_user
       SPRING_DATASOURCE_PASSWORD: notification_service_password
       SERVER_PORT: 8084
-      # Add email specific environment variables here for notification service
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: your-email@gmail.com # IMPORTANT: Replace with your actual email
-      SPRING_MAIL_PASSWORD: your-email-app-password # IMPORTANT: Replace with your actual app password for Gmail
+      SPRING_MAIL_USERNAME: your-email@gmail.com
+      SPRING_MAIL_PASSWORD: your-email-app-password
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
     depends_on:
       notification-db:
         condition: service_healthy
 
+# ... (volumes are unchanged) ...
 volumes:
   user_db_data:
   vehicle_db_data:
