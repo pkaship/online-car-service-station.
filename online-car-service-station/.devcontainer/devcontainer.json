@@ -1,0 +1,38 @@
+// .devcontainer/devcontainer.json
+{
+  "name": "Car Service Station Microservices",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "user-db", // Any service from docker-compose.yml can be the primary service
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-node-azure-pack",       // For Node.js development
+        "vscjava.vscode-java-pack",               // For Java/Spring Boot development
+        "Pivotal.vscode-spring-boot",             // Spring Boot extension
+        "redhat.vscode-yaml",                     // For YAML (Docker Compose, Kubernetes)
+        "ms-azuretools.vscode-docker",            // For Docker integration
+        "formulahendry.vscode-mysql",             // MySQL Client for VS Code
+        "humao.rest-client"                       // For testing REST APIs directly in VS Code
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": { // Docker-in-Docker to build/run Docker inside Codespace
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/kubectl:1": {          // kubectl for Kubernetes
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/helm:1": {             // Helm for Kubernetes package management
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/maven:1": {            // Maven for Spring Boot projects
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/node:1": {             // Node.js for User Service
+      "version": "18"
+    }
+  },
+  "postCreateCommand": "npm install -g yarn && sudo apt-get update && sudo apt-get install -y iputils-ping" // Example post-creation commands
+}

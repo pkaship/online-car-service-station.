@@ -1,0 +1,100 @@
+# .devcontainer/docker-compose.yml
+version: '3.8'
+
+services:
+  user-db:
+    image: mysql:8.0
+    container_name: user-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_user
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_service_user
+      MYSQL_PASSWORD: user_service_password
+    ports:
+      - "3306:3306" # Host port 3306 will map to container's 3306 for user-db
+    volumes:
+      - user_db_data:/var/lib/mysql
+    healthcheck: # Healthcheck to ensure DB is ready
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser_service_user", "-puser_service_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  vehicle-db:
+    image: mysql:8.0
+    container_name: vehicle-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_vehicle
+      MYSQL_DATABASE: vehicle_db
+      MYSQL_USER: vehicle_service_user
+      MYSQL_PASSWORD: vehicle_service_password
+    ports:
+      - "3307:3306" # Host port 3307 maps to container's 3306 for vehicle-db
+    volumes:
+      - vehicle_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uvehicle_service_user", "-pvehicle_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  booking-db:
+    image: mysql:8.0
+    container_name: booking-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_booking
+      MYSQL_DATABASE: booking_db
+      MYSQL_USER: booking_service_user
+      MYSQL_PASSWORD: booking_service_password
+    ports:
+      - "3308:3306" # Host port 3308 maps to container's 3306 for booking-db
+    volumes:
+      - booking_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubooking_service_user", "-pbooking_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  service-management-db:
+    image: mysql:8.0
+    container_name: sm-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_sm
+      MYSQL_DATABASE: service_management_db
+      MYSQL_USER: sm_service_user
+      MYSQL_PASSWORD: sm_service_password
+    ports:
+      - "3309:3306" # Host port 3309 maps to container's 3306 for service-management-db
+    volumes:
+      - service_management_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usm_service_user", "-psm_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  notification-db:
+    image: mysql:8.0
+    container_name: notification-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_notification
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notification_service_user
+      MYSQL_PASSWORD: notification_service_password
+    ports:
+      - "3310:3306" # Host port 3310 maps to container's 3306 for notification-db
+    volumes:
+      - notification_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unotification_service_user", "-pnotification_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  user_db_data:
+  vehicle_db_data:
+  booking_db_data:
+  service_management_db_data:
+  notification_db_data:
