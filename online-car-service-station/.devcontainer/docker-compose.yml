@@ -15,7 +15,6 @@ services:
     volumes:
       - user_db_data:/var/lib/mysql
     healthcheck:
-      # Corrected password to match MYSQL_PASSWORD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser_service_user", "-puser_service_password"]
       interval: 10s
       timeout: 5s
@@ -35,7 +34,6 @@ services:
     volumes:
       - vehicle_db_data:/var/lib/mysql
     healthcheck:
-      # Corrected password to match MYSQL_PASSWORD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uvehicle_service_user", "-pvehicle_service_password"]
       interval: 10s
       timeout: 5s
@@ -55,7 +53,6 @@ services:
     volumes:
       - booking_db_data:/var/lib/mysql
     healthcheck:
-      # Corrected password to match MYSQL_PASSWORD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubooking_service_user", "-pbooking_service_password"]
       interval: 10s
       timeout: 5s
@@ -75,7 +72,6 @@ services:
     volumes:
       - service_management_db_data:/var/lib/mysql
     healthcheck:
-      # Corrected password to match MYSQL_PASSWORD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usm_service_user", "-psm_service_password"]
       interval: 10s
       timeout: 5s
@@ -95,7 +91,6 @@ services:
     volumes:
       - notification_db_data:/var/lib/mysql
     healthcheck:
-      # Corrected password to match MYSQL_PASSWORD
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unotification_service_user", "-pnotification_service_password"]
       interval: 10s
       timeout: 5s
@@ -105,24 +100,23 @@ services:
   # --- Microservice Services ---
   user-service:
     build:
-      context: ../user-service # Path to your user-service directory, relative to .devcontainer
+      context: ../../user-service # Adjusted context for your specific path
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # Expose the service's port
+      - "3000:3000"
     environment:
-      # Ensure DB_HOST points to the service name in this docker-compose.yml
       DB_HOST: user-db
       DB_USER: user_service_user
       DB_PASSWORD: user_service_password
       DB_NAME: user_db
-      JWT_SECRET: aVeryStrongAndComplexSecretKeyForYourJWT # Ensure this matches your .env
+      JWT_SECRET: aVeryStrongAndComplexSecretKeyForYourJWT
     depends_on:
       user-db:
-        condition: service_healthy # Ensure the DB is healthy before starting the service
+        condition: service_healthy
 
   vehicle-service:
     build:
-      context: ../vehicle-service # Path to your vehicle-service directory
+      context: ../../vehicle-service # Adjusted context for your specific path
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
@@ -137,7 +131,7 @@ services:
 
   booking-service:
     build:
-      context: ../booking-service # Path to your booking-service directory
+      context: ../../booking-service # Adjusted context for your specific path
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
@@ -152,7 +146,7 @@ services:
 
   service-management-service:
     build:
-      context: ../service-management-service # Path to your service-management-service directory
+      context: ../../service-management-service # Adjusted context for your specific path
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
@@ -167,7 +161,7 @@ services:
 
   notification-service:
     build:
-      context: ../notification-service # Path to your notification-service directory
+      context: ../../notification-service # Adjusted context for your specific path
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
@@ -176,12 +170,10 @@ services:
       SPRING_DATASOURCE_USERNAME: notification_service_user
       SPRING_DATASOURCE_PASSWORD: notification_service_password
       SERVER_PORT: 8084
-      # !!! IMPORTANT: Replace with your actual email credentials for Gmail SMTP !!!
-      # For security, consider using environment variables managed by Codespaces or Kubernetes secrets later.
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: your-email@gmail.com # Replace with your actual Gmail address
-      SPRING_MAIL_PASSWORD: your-email-app-password # Replace with a generated Gmail App Password (NOT your regular Gmail password if 2FA is on)
+      SPRING_MAIL_USERNAME: your-email@gmail.com # !!! IMPORTANT: Replace with your actual email !!!
+      SPRING_MAIL_PASSWORD: your-email-app-password # !!! IMPORTANT: Replace with a generated Gmail App Password !!!
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
     depends_on:
