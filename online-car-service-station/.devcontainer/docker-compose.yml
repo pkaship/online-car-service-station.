@@ -1,13 +1,106 @@
-# .devcontainer/docker-compose.yml
-version: '3.8'
+version: '3.8' # This version field is technically 'obsolete' in newer Docker Compose, but harmless to keep.
 
 services:
-  # ... (database services are unchanged) ...
+  # --- Database Services ---
+  user-db:
+    image: mysql:8.0
+    container_name: user-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_user
+      MYSQL_DATABASE: user_db
+      MYSQL_USER: user_service_user
+      MYSQL_PASSWORD: user_service_password # Matches healthcheck below
+    ports:
+      - "3306:3306"
+    volumes:
+      - user_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uuser_service_user", "-puser_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  vehicle-db:
+    image: mysql:8.0
+    container_name: vehicle-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_vehicle
+      MYSQL_DATABASE: vehicle_db
+      MYSQL_USER: vehicle_service_user
+      MYSQL_PASSWORD: vehicle_service_password # Matches healthcheck below
+    ports:
+      - "3307:3306"
+    volumes:
+      - vehicle_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uvehicle_service_user", "-pvehicle_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  booking-db:
+    image: mysql:8.0
+    container_name: booking-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_booking
+      MYSQL_DATABASE: booking_db
+      MYSQL_USER: booking_service_user
+      MYSQL_PASSWORD: booking_service_password # Matches healthcheck below
+    ports:
+      - "3308:3306"
+    volumes:
+      - booking_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-ubooking_service_user", "-pbooking_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  service-management-db: # <--- THIS ENTIRE BLOCK WAS MISSING!
+    image: mysql:8.0
+    container_name: sm-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_sm
+      MYSQL_DATABASE: service_management_db
+      MYSQL_USER: sm_service_user
+      MYSQL_PASSWORD: sm_service_password # Matches healthcheck below
+    ports:
+      - "3309:3306"
+    volumes:
+      - service_management_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-usm_service_user", "-psm_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  notification-db:
+    image: mysql:8.0
+    container_name: notification-service-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_notification
+      MYSQL_DATABASE: notification_db
+      MYSQL_USER: notification_service_user
+      MYSQL_PASSWORD: notification_service_password # Matches healthcheck below
+    ports:
+      - "3310:3306"
+    volumes:
+      - notification_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-unotification_service_user", "-pnotification_service_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   # --- Microservice Services ---
   user-service:
     build:
-      context: ../../user-service # Corrected path: Go up two levels from .devcontainer
+      context: ../../user-service
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -23,7 +116,7 @@ services:
 
   vehicle-service:
     build:
-      context: ../../vehicle-service # Corrected path
+      context: ../../vehicle-service
       dockerfile: Dockerfile
     ports:
       - "8081:8081"
@@ -38,7 +131,7 @@ services:
 
   booking-service:
     build:
-      context: ../../booking-service # Corrected path
+      context: ../../booking-service
       dockerfile: Dockerfile
     ports:
       - "8082:8082"
@@ -53,7 +146,7 @@ services:
 
   service-management-service:
     build:
-      context: ../../service-management-service # Corrected path
+      context: ../../service-management-service
       dockerfile: Dockerfile
     ports:
       - "8083:8083"
@@ -68,7 +161,7 @@ services:
 
   notification-service:
     build:
-      context: ../../notification-service # Corrected path
+      context: ../../notification-service
       dockerfile: Dockerfile
     ports:
       - "8084:8084"
@@ -79,15 +172,14 @@ services:
       SERVER_PORT: 8084
       SPRING_MAIL_HOST: smtp.gmail.com
       SPRING_MAIL_PORT: 587
-      SPRING_MAIL_USERNAME: your-email@gmail.com
-      SPRING_MAIL_PASSWORD: your-email-app-password
+      SPRING_MAIL_USERNAME: your-email@gmail.com # IMPORTANT: Replace with your actual email
+      SPRING_MAIL_PASSWORD: your-email-app-password # IMPORTANT: Replace with your actual app password for Gmail
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: true
       SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
     depends_on:
       notification-db:
         condition: service_healthy
 
-# ... (volumes are unchanged) ...
 volumes:
   user_db_data:
   vehicle_db_data:
